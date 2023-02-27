@@ -6,10 +6,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+
 </head>
-<body>
-    <h1>Title</h1>
-    
+<body>    
+    <header class="header"> 
+        <h1>Operaciones con alfabetos, cadenas y lenguajes </h1>
+    </header>
+    <nav class="nav">
+        <h2> Automatas y Lenguajes</h2>
+        <ul class="alphabet">
+            <div>
+                <div class="type-sets" > 
+                    <span class="material-symbols-outlined">
+                        match_case
+                        </span>
+                    <span>Alfabeto</span>
+                </div>
+   
+                <div class="options-type" id="alphabet">
+                    <li>Pertenencia</li>
+                    <li>Unión</li>
+                    <li>Intersección</li>
+                    <li>Complemento</li>
+                    <li>Diferencia absoluta</li>
+                    <li>Diferencia simétrica</li>
+                </div>
+              
+            </div>
+            
+        </ul>
+        <ul class="words">
+            <div>
+                <div class="type-sets">
+                    <span class="material-symbols-outlined">
+                        match_word
+                        </span>
+                    <span>Cadena</span>
+            
+                </div>
+                <div class="options-type" id="words">
+                    <li>Longitud</li>
+                    <li>Concatenación</li>
+                    <li>Potenciación</li>
+                    <li>Inversa</li>
+                </div>
+                
+             
+            </div>
+            
+        </ul>
+
+
+        <ul class="language">
+            <div>
+
+                <div class="type-sets">
+
+                    <span class="material-symbols-outlined">
+                        language
+                        </span>
+                    <span>Lenguaje</span>
+                </div>
+             
+
+                <div class="options-type" id="language">
+                    <li>Concatenación</li>
+                    <li>Potenciación</li>
+                    <li>Inversa</li>
+                    <li>Unión</li>
+                    <li>Intesección</li>
+                    <li>Resta</li>
+                    <li>Clausura de Kleene</li>
+                    <li>Clausura positiva</li>
+                </div>
+              
+            </div>
+            
+        </ul>
+    </nav>
+
+    <main>
+        <div>
+            <h2 id="title-type-sets"></h2>
+            <h4 id="title-type-operations"></h4>
+
+        </div>
+    </main>
     <script src="./script.js"></script>
 </body>
 </html>

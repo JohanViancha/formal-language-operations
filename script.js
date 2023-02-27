@@ -4,6 +4,34 @@ const c2 = ['a', 'e', 'f', 'g'];
 
 
 
+window.onload = ()=> {
+    init();
+}
+
+
+const init = ()=>{
+    const optionsAlphabet = document.querySelector('.alphabet');
+    const subOptionsAlphabet =  document.querySelector('#alphabet');
+    const subOptionsWords =  document.querySelector('#words');
+    const subOptionsLanguage =  document.querySelector('#language');
+    const optionsWords = document.querySelector('.words');
+    const optionsLanguage = document.querySelector('.language');
+
+    console.log(optionsAlphabet)
+
+    optionsAlphabet.addEventListener('click',  (element)=>{
+        subOptionsAlphabet.classList.toggle('alphabet-options')
+    })
+
+    optionsWords.addEventListener('click',  (element)=>{
+        subOptionsWords.classList.toggle('word-options')
+    })
+
+
+    optionsLanguage.addEventListener('click',  (element)=>{
+        subOptionsLanguage.classList.toggle('language-options')
+    })
+}
 
 /*** Operations with alphabet  ***/
 
