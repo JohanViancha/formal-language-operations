@@ -42,7 +42,7 @@ const symmetricalDifference = (setA, setB) =>{
 
 const lengthWord = (word) => word.length;
 
-const concatWords = (wordA, wordB) => wordA.concat(wordB);
+const concatWords = (wordA ='', wordB ='') => wordA.concat(wordB);
 
 const boostAWord = (boost, word) => {
     if(boost==0) return 'vacío';
@@ -57,11 +57,12 @@ const inverseOfWord = (word) => word.split("").reverse().join("");
 /** Operations with language */
 
 const concatLanguage = (langA, langB) =>{
-    langA.unshift('');
     const concatAAndB = [];
-
+    langA.unshift('')
     for (let i = 0; i < lengthWord(langA); i++) {
-        for (let j = 0; j < lengthWord(langB); j++) {            
+        for (let j = 0; j < lengthWord(langB); j++) {    
+            console.log(concatWords(langA[i], langB[j]));   
+
             concatAAndB.push(concatWords(langA[i], langB[j]));
         }        
     }
@@ -71,24 +72,76 @@ const concatLanguage = (langA, langB) =>{
 }
 
 
-const boostALanguage = (boost,lang) => {
-
-    for (let i = 0; i < lang.length; i++) {
-        
+const cloneLanguage = (n, lang)=> {
+    let arrayLang = [];
+    for (let index = 0; index < n; index++){
+        arrayLang.push(lang.slice(lang[index])) 
     }
+    return arrayLang
+}
+
+let count = 1;
+const boostLanguage = (boost,lang,size,resultLang) => {
+
+    if(boost===1) return lang;
+    for (let index = 0; index < boost ; index++) {
+        for (let j = 0; j < boost; j++) {
+            //console.log(concatWords(lang[index], lang[j]).concat(resultLang[index]))
+            resultLang.push(concatWords(lang[index], lang[j]))      
+        }      
+    }
+
+   if(boost-1 > count) {
+        count++;
+        console.log('afdas')
+       // boostLanguage(boost,lang,size,resultLang)
+   }
+
+    //arrayResult = [];
+    //count = 1;
+    return resultLang;
 }
 
 
-console.log(belongingSets(c1,c2));
-console.log(joinSets(c1,c2))
-console.log(intersectionSets(c1,c2))
-console.log(complementSets(c1,c2))
-console.log(symmetricalDifference(c1,c2))
-console.log(lengthWord('gs'))
-console.log(concatWords('abc','def'))
-console.log(boostAWord(4, 'abc'))
-console.log(inverseOfWord('hola'))
-console.log(concatLanguage(['carro','moto'],['cicla','bus']))
+const reverseLanguage = (lang) => {
+    return lang.map((character)=> inverseOfWord(character))
+}
 
+const joinLanguage = (langa, langb) => {
+    const aaa = joinSets(langa,langb);
+    aaa.unshift('');
+    return aaa
+}
+
+const intersectionLanguage = (langa, langb) => {
+    return  intersectionSets(langa, langb)
+}
+
+const subtractLanguage =  (langa, langb)=> {
+    const aaa = complementSets(langa, langb)
+    aaa.unshift('');
+    return aaa;
+}
+
+
+
+// console.log(belongingSets(c1,c2));
+// console.log(joinSets(c1,c2))
+// console.log(intersectionSets(c1,c2))
+// console.log(complementSets(c1,c2))
+// console.log(symmetricalDifference(c1,c2))
+// console.log(lengthWord('gs'))
+// console.log(concatWords('abc','def'))
+// console.log(boostAWord(4, 'abc'))
+// console.log(inverseOfWord('hola'))
+// console.log(concatLanguage(['carro','moto'],['cicla','bus']));
+//console.log(boostLanguage(2,['a','b','c']));
+//console.log(reverseLanguage(['0','01','1234', '111']))
+//console.log(joinLanguage(['lana','papa', 'perro'], ['nana','natis','pepa']))
+//console.log(intersectionLanguage(['lana','papa', 'perro'], ['lana','natis','papa']))
+// console.log(subtractLanguage(['lana', 'papa'],['papa']))
+// console.log(subtractLanguage(['papa'],['lana', 'papa']))
+
+console.log(boostLanguage(3,['a','b'],['a','b'].length, []))
 
 
