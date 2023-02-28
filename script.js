@@ -17,7 +17,53 @@ const init = ()=>{
     const optionsWords = document.querySelector('.words');
     const optionsLanguage = document.querySelector('.language');
 
-    console.log(optionsAlphabet)
+    const alphabetBelongingSets = document.querySelector('#alphabet-belonging');
+    const alphabetJoinSets = document.querySelector('#alphabet-join');
+    const alphabetIntersectionSets = document.querySelector('#alphabet-intersection');
+    const alphabetComplementSets = document.querySelector('#alphabet-complement');
+    const alphabetAbsoluteDifference = document.querySelector('#alphabet-absolute-difference');
+    const alphabetSymmetricalDifference = document.querySelector('#alphabet-symmetrical-difference');
+
+
+    const wordsLength = document.querySelector('#words-length');
+    const wordsConcat = document.querySelector('#words-concat');
+    const wordsBoost = document.querySelector('#words-boost');
+    const wordsReverse = document.querySelector('#words-reverse');
+
+    const languageConcat = document.querySelector('#language-concat');
+    const languageBoost = document.querySelector('#language-boost');
+    const languageReverse = document.querySelector('#language-reverse');
+    const languageJoin = document.querySelector('#language-join');
+    const languageIntersection = document.querySelector('#language-intersection');
+    const languageSubstract = document.querySelector('#language-substract');
+    const languageKleene = document.querySelector('#language-kleene');
+    const languagePositive = document.querySelector('#language-positve');
+ 
+
+ 
+console.log(languageConcat)
+    showTitle(alphabetBelongingSets, {sets:'Alfabeto', operations: 'Pertenencia'})
+    showTitle(alphabetJoinSets, {sets:'Alfabeto', operations: 'Unión'})
+    showTitle(alphabetIntersectionSets, {sets:'Alfabeto', operations: 'Intersección'})
+    showTitle(alphabetComplementSets, {sets:'Alfabeto', operations: 'Complemento'})
+    showTitle(alphabetAbsoluteDifference, {sets:'Alfabeto', operations: 'Diferencia absoluta'})
+    showTitle(alphabetSymmetricalDifference, {sets:'Alfabeto', operations: 'Diferencia simétrica'})
+
+    showTitle(wordsLength, {sets:'Cadena', operations: 'Longitud'})
+    showTitle(wordsConcat, {sets:'Cadena', operations: 'Concatenación'})
+    showTitle(wordsBoost, {sets:'Cadena', operations: 'Potenciación'})
+    showTitle(wordsReverse, {sets:'Cadena', operations: 'Inversa'})
+
+    showTitle(languageConcat, {sets:'Lenguaje', operations: 'Concatenación'})
+    showTitle(languageBoost, {sets:'Lenguaje', operations: 'Potenciación'})
+    showTitle(languageReverse, {sets:'Lenguaje', operations: 'Inversa'})
+    showTitle(languageJoin, {sets:'Lenguaje', operations: 'Unión'})
+    showTitle(languageIntersection, {sets:'Lenguaje', operations: 'Intersección'})
+    showTitle(languageSubstract, {sets:'Lenguaje', operations: 'Resta'})
+    showTitle(languageKleene, {sets:'Lenguaje', operations: 'Clausura de Kleene'})
+    showTitle(languagePositive, {sets:'Lenguaje', operations: 'Clausura de Kleene'})
+    
+    
 
     optionsAlphabet.addEventListener('click',  (element)=>{
         subOptionsAlphabet.classList.toggle('alphabet-options')
@@ -30,6 +76,16 @@ const init = ()=>{
 
     optionsLanguage.addEventListener('click',  (element)=>{
         subOptionsLanguage.classList.toggle('language-options')
+    })
+}
+
+
+const showTitle = (element, title) => { 
+    const titleTypeSets = document.querySelector("#title-type-sets")
+    const titleTypeOperations = document.querySelector("#title-type-operations")
+    element.addEventListener('click',  ()=>{
+        titleTypeSets.innerHTML = title.sets
+        titleTypeOperations.innerHTML = title.operations
     })
 }
 
