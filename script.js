@@ -3,9 +3,10 @@ let equal = document.querySelector("#equal");
 let resultRight = document.querySelector("#result-right");
 const InputSetsA = document.querySelector("#setsA");
 const InputSetsB = document.querySelector("#setsB");
-const labelA = document.querySelector("#name-sets");
+const labelA = document.querySelector("#name-setsA");
+const labelB = document.querySelector("#name-setsB");
 const btnChange = document.querySelector("#btn-change");
-
+let changeOrder = true;
 
 window.onload = ()=> {
     init();
@@ -29,12 +30,15 @@ const init = ()=>{
         option.addEventListener('click', ({target})=>{
             operations = {sets:target.dataset.type, operations: target.innerText, description:target.dataset.description}
             showTitle(operations);
+            clearForm();
             showPlaceHolder(operations.sets,operations["operations"])
+            validateShowElement(operations["operations"]);
         })
     })
 
     btnChange.addEventListener('click', (element)=> {
         element.target.classList.toggle('animation-rotate')
+        changeOrder = !changeOrder;
     })
 
     calculate.addEventListener('click',()=>{
@@ -43,10 +47,12 @@ const init = ()=>{
    
     optionsAlphabet.addEventListener('click',  (element)=>{
         subOptionsAlphabet.classList.toggle('alphabet-options')
+       
     })
 
     optionsWords.addEventListener('click',  (element)=>{
         subOptionsWords.classList.toggle('word-options')
+       
     })
 
     optionsLanguage.addEventListener('click',  (element)=>{
@@ -56,22 +62,57 @@ const init = ()=>{
 
 
 const executeOperations = (operation, sets) =>{
-   
     let options = {
         'Pertenencia' : ()=>{ 
-            console.log('aa')
-            belongingSets(sets["setsA"], sets["setsB"])
+            resultLeft.innerText = 'B';
+            resultRight.innerText = 'A';
+            equal.innerHTML = belongingSets(sets["setsA"], sets["setsB"]);
         },
-        'Unión': ()=>  joinSets(sets["setsA"], sets["setsB"]),
-        'Intersección': ()=> intersectionSets(sets["setsA"], sets["setsB"]),
-        'Complemento': ()=> complementSets(sets["setsA"], sets["setsB"])
-        // 'alphabet-complement': complementSets(),
-        // 'alphabet-absolute-difference': absoluteDifference(),
-        // 'alphabet-symmetrical-difference': absoluteDifference()
-         // 'words-length': belongingSets(),
-        // 'words-concat': joinSets(),
-        // 'words-boost': intersectionSets(),
-        // 'words-reverse': complementSets()
+        'Unión': ()=>  {
+            resultLeft.innerHTML = `A ${'&cup;'} B`;
+            equal.innerText = '=';
+            resultRight.innerText = joinSets(sets["setsA"], sets["setsB"]);
+        },
+        'Intersección': ()=> {
+            resultLeft.innerHTML = `A ${'&cap;'} B`;
+            equal.innerText = '=';
+            labelA.innerText = 'Conjunto U';
+            resultRight.innerText = intersectionSets(sets["setsA"], sets["setsB"]);
+        },
+        'Complemento': ()=> {
+            resultLeft.innerText = `B’`;
+            equal.innerText = '=';
+            resultRight.innerText = complementSets(sets["setsA"], sets["setsB"]);
+        },
+        'Diferencia absoluta': ()=> {
+            resultRight.innerText = absoluteDifference(sets["setsA"], sets["setsB"]);
+        },
+        'Diferencia simétrica': ()=> {
+            resultLeft.innerHTML = `A ${'&oplus;'} B`;
+            equal.innerText = '=';
+            resultRight.innerText = symmetricalDifference(sets["setsA"], sets["setsB"]);
+        },
+        "Longitud" : () =>{
+            resultLeft.innerHTML = `| A |`;
+            equal.innerText = '=';
+            resultRight.innerText = lengthWord(sets["setsA"][0]);
+        },
+        'Concatenación': ()=>{
+            resultLeft.innerHTML = `AB`;
+            equal.innerText = '=';
+            resultRight.innerText = joinSets(sets["setsA"], sets["setsB"]);
+        } ,
+         'Potenciación' : ()=> {
+            resultLeft.innerHTML = `A <sup>${sets["setsB"]}</sup>`
+            equal.innerText = '=';
+            labelA.innerText = 'Exponente';
+            resultRight.innerHTML = boostAWord(sets["setsB"],sets["setsA"])
+         },
+         'Inversa': ()=> {
+            resultLeft.innerHTML = `A <sup>R</sup>`
+            equal.innerText = '=';
+            resultRight.innerText = inverseOfWord(sets["setsA"][0])
+         }
 
         // 'language-concat': belongingSets(),
         // 'language-boost': joinSets(),
@@ -98,50 +139,85 @@ const showTitle = (textOperations) => {
 
 const showPlaceHolder = (placeHolder,operation ) =>{
     const article = placeHolder==='Cadena' ? 'la':'el';
+    labelA.innerText = 'Conjunto A'
+    labelB.innerText = 'Conjunto B'
+    InputSetsA.placeholder  = `Ingresa ${article} ${placeHolder.toLowerCase()} A (seperados por coma ",")`
+    InputSetsB.placeholder  = `Ingresa ${article} ${placeHolder.toLowerCase()} B (seperados por coma ",")`
 
     if(operation === 'Complemento'){
-        labelA.innerHTML = 'Conjunto U'
+        labelA.innerText = 'Conjunto U';
         InputSetsA.placeholder = 'Ingresa el conjunto U (seperados por coma ",")'
-        InputSetsB.placeholder  = `Ingresa ${article} ${placeHolder.toLowerCase()} B (seperados por coma ",")`
         return;
     }
 
-    if(operation === 'Diferencia absoluta') btnChange.style.display = 'block';
+    if((operation === 'Longitud' 
+        || operation === 'Concatenación' 
+        || operation === "Inversa") 
+        && placeHolder === 'Cadena') {        
+        InputSetsA.placeholder = `Ingresa ${article} ${placeHolder.toLowerCase()} A`;
+        InputSetsB.placeholder  = `Ingresa ${article} ${placeHolder.toLowerCase()} B`;
+        return;
+    }
 
-    InputSetsA.placeholder  = `Ingresa ${article} ${placeHolder.toLowerCase()} A (seperados por coma ",")`
-    InputSetsB.placeholder  = `Ingresa ${article} ${placeHolder.toLowerCase()} B (seperados por coma ",")`
+    if(operation === 'Potenciación') {
+        InputSetsA.placeholder = `Ingresa ${article} ${placeHolder.toLowerCase()} A`;
+        InputSetsB.placeholder  = `Ingresa el exponente`;
+        labelB.innerText = 'Exponente';
+        return;
+    }
+
+}
+
+
+const validateShowElement = (operation) =>{
+    operation === 'Longitud' ||  operation === 'Inversa' 
+    ? canShowElement([labelB,InputSetsB ],'none') 
+    :canShowElement([labelB,InputSetsB] ,'block');
+    operation === 'Diferencia absoluta' ? canShowElement([btnChange],'block') : canShowElement([btnChange],'none');
+
+}
+
+const canShowElement = (element , display) =>{
+    element.forEach((el)=>{
+        el.style.display = display;
+    })
+}
+
+
+const clearForm = () =>{
+    InputSetsA.value = '';
+    equal.innerText = '';
+    resultLeft.innerText = '';
+    resultRight.innerHTML = '';
+    InputSetsB.value = '';
 }
 
 /*** Operations with alphabet  ***/
 
 const belongingSets = (A, B) => {
-    resultLeft.innerText = 'B'
-    equal.innerHTML = [...new Set(B)].every((character) => findCharacterInAGroup(character, A)) ? '&isin;': '&notin;';
-    resultRight.innerText = 'A'
+    return [...new Set(B)].every((character) => findCharacterInAGroup(character, A)) ? '&isin;': '&notin;';
 }
 
 const joinSets = (A, B) => {
-    resultLeft.innerHTML = `A ${'&cup;'} B`
-    equal.innerText = '='
-    resultRight.innerText =  `{ ${[...new Set(A.concat(B))]} }`
-   
+    return `${[...new Set(A.concat(B))].join('')}`
 }
 
 const intersectionSets = (A,B) => {
-    resultLeft.innerHTML = `A ${'&cap;'} B`
-    equal.innerText = '='
-    resultRight.innerText =  `{ ${[... new Set(A)].filter((character)=> findCharacterInAGroup(character, B))} }`
+    return `{ ${[... new Set(A)].filter((character)=> findCharacterInAGroup(character, B))} }`
 }
 
-const complementSets = (univerSet, B) =>{
-    console.log('asaf')
-    resultLeft.innerText = `B’`
-    equal.innerText = '='
-    resultRight.innerText = `{ ${[... new Set(univerSet)].filter((character)=> !findCharacterInAGroup(character, B))} }` 
+const complementSets = (univerSet, B) =>{  
+    return `{ ${[... new Set(univerSet)].filter((character)=> !findCharacterInAGroup(character, B))} }` 
 }
 
-const absoluteDifference = () =>{
- ///Pendiente para aclarar con el profesor
+const absoluteDifference = (A,B) => {
+    equal.innerText = '=';
+    if(changeOrder) {
+        resultLeft.innerHTML = `A ${'&#92;'} B`;
+        return complementSets(A,B);
+    }
+    resultLeft.innerHTML = `B ${'&#92;'} A`;
+    return complementSets(B,A);
 }
 
 const findCharacterInAGroup = (character, set) => new Set(set).has(character);
@@ -157,19 +233,21 @@ const symmetricalDifference = (A, B) =>{
 
 /** Operations with words */
 
-const lengthWord = (word) => word.length;
+const lengthWord = (word) => {
+    console.log(word)
+    return word.length
+};
 
 const concatWords = (wordA ='', wordB ='') => wordA.concat(wordB);
 
 const boostAWord = (boost, word) => {
-    if(boost==0) return 'vacío';
+    if(boost==0) return '&lambda;';
     let wordConcat = '';
-    for (let index = 0; index < boost; index++) wordConcat += word;
+    for (let index = 0; index < boost; index++) wordConcat += word
     return wordConcat;
 }
 
 const inverseOfWord = (word) => word.split("").reverse().join("");
-
 
 /** Operations with language */
 
