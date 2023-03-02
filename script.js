@@ -1,7 +1,10 @@
-
-const c1 = ['a', 'b', 'c', 'd'];
-const c2 = ['a', 'e', 'f', 'g'];
-
+let resultLeft = document.querySelector("#result-left");
+let equal = document.querySelector("#equal");
+let resultRight = document.querySelector("#result-right");
+const InputSetsA = document.querySelector("#setsA");
+const InputSetsB = document.querySelector("#setsB");
+const labelA = document.querySelector("#name-sets");
+const btnChange = document.querySelector("#btn-change");
 
 
 window.onload = ()=> {
@@ -17,14 +20,27 @@ const init = ()=>{
     const optionsWords = document.querySelector('.words');
     const optionsLanguage = document.querySelector('.language');
     const typeOptions = document.querySelectorAll('.options-type li');
- 
+    const calculate = document.querySelector("#calculate");
+
+   
+    let operations = {};
+    
     typeOptions.forEach((option)=>{
         option.addEventListener('click', ({target})=>{
-            showTitle({sets:target.dataset.type, operations: target.innerText})
+            operations = {sets:target.dataset.type, operations: target.innerText, description:target.dataset.description}
+            showTitle(operations);
+            showPlaceHolder(operations.sets,operations["operations"])
         })
     })
-   
 
+    btnChange.addEventListener('click', (element)=> {
+        element.target.classList.toggle('animation-rotate')
+    })
+
+    calculate.addEventListener('click',()=>{
+        executeOperations(operations, {setsA:InputSetsA.value.split(','), setsB:InputSetsB.value.split(',')});
+    })
+   
     optionsAlphabet.addEventListener('click',  (element)=>{
         subOptionsAlphabet.classList.toggle('alphabet-options')
     })
@@ -33,36 +49,95 @@ const init = ()=>{
         subOptionsWords.classList.toggle('word-options')
     })
 
-
     optionsLanguage.addEventListener('click',  (element)=>{
         subOptionsLanguage.classList.toggle('language-options')
     })
 }
 
 
-const showTitle = (title) => { 
+const executeOperations = (operation, sets) =>{
+   
+    let options = {
+        'Pertenencia' : ()=>{ 
+            console.log('aa')
+            belongingSets(sets["setsA"], sets["setsB"])
+        },
+        'Unión': ()=>  joinSets(sets["setsA"], sets["setsB"]),
+        'Intersección': ()=> intersectionSets(sets["setsA"], sets["setsB"]),
+        'Complemento': ()=> complementSets(sets["setsA"], sets["setsB"])
+        // 'alphabet-complement': complementSets(),
+        // 'alphabet-absolute-difference': absoluteDifference(),
+        // 'alphabet-symmetrical-difference': absoluteDifference()
+         // 'words-length': belongingSets(),
+        // 'words-concat': joinSets(),
+        // 'words-boost': intersectionSets(),
+        // 'words-reverse': complementSets()
+
+        // 'language-concat': belongingSets(),
+        // 'language-boost': joinSets(),
+        // 'language-reverse': intersectionSets(),
+        // 'language-join': complementSets(),
+        // 'language-intersection': absoluteDifference(),
+        // 'language-substract': absoluteDifference(),
+        // 'language-kleene': absoluteDifference(),
+        // 'language-positve': absoluteDifference()
+    }
+
+    return options[operation["operations"]](); 
+
+}
+
+const showTitle = (textOperations) => { 
     const titleTypeSets = document.querySelector("#title-type-sets")
     const titleTypeOperations = document.querySelector("#title-type-operations")
-    titleTypeSets.innerHTML = title.sets
-    titleTypeOperations.innerHTML = title.operations
+    const descriptionOperations = document.querySelector("#description-operations");
+    titleTypeSets.innerHTML = textOperations.sets
+    titleTypeOperations.innerHTML = textOperations.operations
+    descriptionOperations.innerHTML = textOperations.description
+}
+
+const showPlaceHolder = (placeHolder,operation ) =>{
+    const article = placeHolder==='Cadena' ? 'la':'el';
+
+    if(operation === 'Complemento'){
+        labelA.innerHTML = 'Conjunto U'
+        InputSetsA.placeholder = 'Ingresa el conjunto U (seperados por coma ",")'
+        InputSetsB.placeholder  = `Ingresa ${article} ${placeHolder.toLowerCase()} B (seperados por coma ",")`
+        return;
+    }
+
+    if(operation === 'Diferencia absoluta') btnChange.style.display = 'block';
+
+    InputSetsA.placeholder  = `Ingresa ${article} ${placeHolder.toLowerCase()} A (seperados por coma ",")`
+    InputSetsB.placeholder  = `Ingresa ${article} ${placeHolder.toLowerCase()} B (seperados por coma ",")`
 }
 
 /*** Operations with alphabet  ***/
 
-const belongingSets = (setA, setB) => {
-    return  [...new Set(setB)].every((character) => findCharacterInAGroup(character, setA))
+const belongingSets = (A, B) => {
+    resultLeft.innerText = 'B'
+    equal.innerHTML = [...new Set(B)].every((character) => findCharacterInAGroup(character, A)) ? '&isin;': '&notin;';
+    resultRight.innerText = 'A'
 }
 
-const joinSets = (setA, setB) => {
-    return [...new Set(setA.concat(setB))]
+const joinSets = (A, B) => {
+    resultLeft.innerHTML = `A ${'&cup;'} B`
+    equal.innerText = '='
+    resultRight.innerText =  `{ ${[...new Set(A.concat(B))]} }`
+   
 }
 
-const intersectionSets = (setA,setB) => {
-    return  [... new Set(setA)].filter((character)=> findCharacterInAGroup(character, setB))
+const intersectionSets = (A,B) => {
+    resultLeft.innerHTML = `A ${'&cap;'} B`
+    equal.innerText = '='
+    resultRight.innerText =  `{ ${[... new Set(A)].filter((character)=> findCharacterInAGroup(character, B))} }`
 }
 
-const complementSets = (univerSet, setB) =>{
-    return [... new Set(univerSet)].filter((character)=> !findCharacterInAGroup(character, setB))
+const complementSets = (univerSet, B) =>{
+    console.log('asaf')
+    resultLeft.innerText = `B’`
+    equal.innerText = '='
+    resultRight.innerText = `{ ${[... new Set(univerSet)].filter((character)=> !findCharacterInAGroup(character, B))} }` 
 }
 
 const absoluteDifference = () =>{
@@ -71,9 +146,9 @@ const absoluteDifference = () =>{
 
 const findCharacterInAGroup = (character, set) => new Set(set).has(character);
 
-const symmetricalDifference = (setA, setB) =>{
-    const characterSetaNotFoundInb = [...new Set(setA)].filter((character)=> !findCharacterInAGroup(character, setB))
-    const characterSetbNotFoundIna = [...new Set(setB)].filter((character)=> !findCharacterInAGroup(character, setA))
+const symmetricalDifference = (A, B) =>{
+    const characterSetaNotFoundInb = [...new Set(A)].filter((character)=> !findCharacterInAGroup(character, B))
+    const characterSetbNotFoundIna = [...new Set(B)].filter((character)=> !findCharacterInAGroup(character, A))
 
     return joinSets(characterSetaNotFoundInb, characterSetbNotFoundIna)
 }
@@ -164,7 +239,6 @@ const subtractLanguage =  (langa, langb)=> {
     aaa.unshift('');
     return aaa;
 }
-
 
 
 // console.log(belongingSets(c1,c2));
