@@ -54,6 +54,7 @@ body{
     width: 16rem;
     height: 100vh;
     overflow: auto;
+    position: fixed;
     box-sizing: border-box;
     padding-top: 5.2rem;
     background-color: var(--color-secundary);
@@ -126,8 +127,8 @@ body{
 }
 
 .container{
-    padding: 5rem 2rem 0 2rem;
-    width: 70vw;
+    padding: 5rem 4rem 4rem 19rem;
+    width: 96vw;
     box-sizing: border-box;
     margin: 0 auto;
     height: 100%;
@@ -237,10 +238,15 @@ footer{
  }
 
  .result{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 1rem;
+    text-align: center;
     font-size: var(--font-size-large);
     font-weight: bold;
+    z-index: -1;
+ }
+
+ .result__left{
+    width: 100px;
+ }
+ .result__right{
+    word-break: break-all;
  }

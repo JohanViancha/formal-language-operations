@@ -62,6 +62,7 @@ const init = ()=>{
 
 
 const executeOperations = (operation, sets) =>{
+    equal.innerText = '=';
     let options = {
         'Pertenencia' : ()=>{ 
             resultLeft.innerText = 'B';
@@ -70,58 +71,89 @@ const executeOperations = (operation, sets) =>{
         },
         'Unión': ()=>  {
             resultLeft.innerHTML = `A ${'&cup;'} B`;
-            equal.innerText = '=';
-            resultRight.innerText = joinSets(sets["setsA"], sets["setsB"]);
+            if(operation["sets"] === 'Alfabeto'){
+                resultRight.innerText = `{ ${joinSets(sets["setsA"], sets["setsB"])} }`;
+                return;
+            }
+            let result = joinLanguage(sets["setsA"], sets["setsB"]);
+            result.unshift('&lambda;');
+            resultRight.innerHTML = `{ ${result} }`;
         },
+
         'Intersección': ()=> {
             resultLeft.innerHTML = `A ${'&cap;'} B`;
-            equal.innerText = '=';
-            labelA.innerText = 'Conjunto U';
-            resultRight.innerText = intersectionSets(sets["setsA"], sets["setsB"]);
+            if(operation["sets"] === 'Alfabeto'){
+                resultRight.innerText = `{  ${intersectionSets(sets["setsA"], sets["setsB"])} }`;
+                return;
+            }
+            resultRight.innerText = `{ ${intersectionLanguage(sets["setsA"], sets["setsB"])} }`;
         },
+
         'Complemento': ()=> {
             resultLeft.innerText = `B’`;
-            equal.innerText = '=';
-            resultRight.innerText = complementSets(sets["setsA"], sets["setsB"]);
+            resultRight.innerText = `{ ${complementSets(sets["setsA"], sets["setsB"])} }`;
         },
+
         'Diferencia absoluta': ()=> {
-            resultRight.innerText = absoluteDifference(sets["setsA"], sets["setsB"]);
+            resultRight.innerText = `{ ${absoluteDifference(sets["setsA"], sets["setsB"])} }`;
         },
+
         'Diferencia simétrica': ()=> {
             resultLeft.innerHTML = `A ${'&oplus;'} B`;
-            equal.innerText = '=';
             resultRight.innerText = symmetricalDifference(sets["setsA"], sets["setsB"]);
         },
+
         "Longitud" : () =>{
             resultLeft.innerHTML = `| A |`;
-            equal.innerText = '=';
             resultRight.innerText = lengthWord(sets["setsA"][0]);
         },
+
         'Concatenación': ()=>{
-            resultLeft.innerHTML = `AB`;
-            equal.innerText = '=';
-            resultRight.innerText = joinSets(sets["setsA"], sets["setsB"]);
+            if(operation["sets"] === 'Cadena'){
+                resultLeft.innerHTML = `AB`;
+                resultRight.innerText = concatWords(sets["setsA"], sets["setsB"]);
+                return;
+            }
+            resultLeft.innerHTML = `A &middot; B`;
+        
+            resultRight.innerText = concatLanguage(sets["setsA"], sets["setsB"]);
         } ,
-         'Potenciación' : ()=> {
+
+        'Potenciación' : ()=> {
             resultLeft.innerHTML = `A <sup>${sets["setsB"]}</sup>`
-            equal.innerText = '=';
-            labelA.innerText = 'Exponente';
-            resultRight.innerHTML = boostAWord(sets["setsB"],sets["setsA"])
+            if(operation["sets"] === "Cadena"){ 
+                resultRight.innerHTML = boostAWord(sets["setsB"],sets["setsA"]);
+                return;
+            }
+            resultRight.innerHTML = `{ ${boostLanguage(sets["setsB"],sets["setsA"])} }`;
          },
+
          'Inversa': ()=> {
             resultLeft.innerHTML = `A <sup>R</sup>`
-            equal.innerText = '=';
-            resultRight.innerText = inverseOfWord(sets["setsA"][0])
-         }
+            if(operation["sets"] === "Cadena"){  
+                resultRight.innerText = `{ ${reverseOfWord(sets["setsA"][0])} }`;
+                return;
+            }
+            resultRight.innerHTML = `{ ${reverseLanguage(sets["setsA"])} }`;
 
-        // 'language-concat': belongingSets(),
-        // 'language-boost': joinSets(),
-        // 'language-reverse': intersectionSets(),
-        // 'language-join': complementSets(),
-        // 'language-intersection': absoluteDifference(),
-        // 'language-substract': absoluteDifference(),
-        // 'language-kleene': absoluteDifference(),
-        // 'language-positve': absoluteDifference()
+         },
+
+         "Resta" : () =>{
+            resultLeft.innerText = 'A - B'
+            resultRight.innerText = `{ ${subtractLanguage(sets["setsA"],sets["setsB"])} }`;
+        },
+
+        "Clausura de Kleene": () =>{
+            resultLeft.innerHTML = `A <sup>*</sup>`
+            const result = `{ ${kleeneClosure(5,sets["setsA"])} }`;
+            resultRight.innerHTML = result;
+        },
+
+        "Clausura Positiva": () =>{
+            resultLeft.innerHTML = `A <sup>+</sup>`
+            const result = `{ ${positiveClosure(5,sets["setsA"])} }`;
+            resultRight.innerHTML = result;
+        }
     }
 
     return options[operation["operations"]](); 
@@ -170,11 +202,17 @@ const showPlaceHolder = (placeHolder,operation ) =>{
 
 
 const validateShowElement = (operation) =>{
-    operation === 'Longitud' ||  operation === 'Inversa' 
+    operation === 'Longitud' 
+    ||  operation === 'Inversa' 
+    || operation === 'Clausura de Kleene' 
+    ||  operation === 'Clausura Positiva'
     ? canShowElement([labelB,InputSetsB ],'none') 
-    :canShowElement([labelB,InputSetsB] ,'block');
-    operation === 'Diferencia absoluta' ? canShowElement([btnChange],'block') : canShowElement([btnChange],'none');
+    : canShowElement([labelB,InputSetsB] ,'block');
 
+    operation === 'Diferencia absoluta' 
+    || operation === 'Resta'
+    ? canShowElement([btnChange],'block') 
+    : canShowElement([btnChange],'none');
 }
 
 const canShowElement = (element , display) =>{
@@ -190,6 +228,7 @@ const clearForm = () =>{
     resultLeft.innerText = '';
     resultRight.innerHTML = '';
     InputSetsB.value = '';
+    changeOrder = true;
 }
 
 /*** Operations with alphabet  ***/
@@ -199,15 +238,15 @@ const belongingSets = (A, B) => {
 }
 
 const joinSets = (A, B) => {
-    return `${[...new Set(A.concat(B))].join('')}`
+    return `${[...new Set(A.concat(B))].join(',')}`
 }
 
 const intersectionSets = (A,B) => {
-    return `{ ${[... new Set(A)].filter((character)=> findCharacterInAGroup(character, B))} }`
+    return [... new Set(A)].filter((character)=> findCharacterInAGroup(character, B))
 }
 
 const complementSets = (univerSet, B) =>{  
-    return `{ ${[... new Set(univerSet)].filter((character)=> !findCharacterInAGroup(character, B))} }` 
+    return [... new Set(univerSet)].filter((character)=> !findCharacterInAGroup(character, B)) 
 }
 
 const absoluteDifference = (A,B) => {
@@ -234,8 +273,7 @@ const symmetricalDifference = (A, B) =>{
 /** Operations with words */
 
 const lengthWord = (word) => {
-    console.log(word)
-    return word.length
+    return word.length;
 };
 
 const concatWords = (wordA ='', wordB ='') => wordA.concat(wordB);
@@ -247,18 +285,16 @@ const boostAWord = (boost, word) => {
     return wordConcat;
 }
 
-const inverseOfWord = (word) => word.split("").reverse().join("");
+const reverseOfWord = (word) => word.split("").reverse().join("");
 
 /** Operations with language */
 
 const concatLanguage = (langA, langB) =>{
     const concatAAndB = [];
-    langA.unshift('')
-    for (let i = 0; i < lengthWord(langA); i++) {
-        for (let j = 0; j < lengthWord(langB); j++) {    
-            console.log(concatWords(langA[i], langB[j]));   
-
-            concatAAndB.push(concatWords(langA[i], langB[j]));
+    langB.unshift('')
+    for (let i = 0; i < lengthWord(langB); i++) {
+        for (let j = 0; j < lengthWord(langA); j++) {    
+            concatAAndB.push(concatWords(langB[i],langA[j]));
         }        
     }
 
@@ -267,75 +303,50 @@ const concatLanguage = (langA, langB) =>{
 }
 
 
-const cloneLanguage = (n, lang)=> {
-    let arrayLang = [];
-    for (let index = 0; index < n; index++){
-        arrayLang.push(lang.slice(lang[index])) 
-    }
-    return arrayLang
+const boostLanguage = (boost,lenguaje) => {
+    if(boost==0) return '&lambda;'
+    let result = lenguaje;
+    for (let i = 1; i < boost; i++) {
+        result = result.reduce((acumulador, elemento) => {
+      return acumulador.concat(lenguaje.map(subElemento => elemento + subElemento));
+    }, []);
+  }
+  return result;
 }
-
-let count = 1;
-const boostLanguage = (boost,lang,size,resultLang) => {
-
-    if(boost===1) return lang;
-    for (let index = 0; index < boost ; index++) {
-        for (let j = 0; j < boost; j++) {
-            //console.log(concatWords(lang[index], lang[j]).concat(resultLang[index]))
-            resultLang.push(concatWords(lang[index], lang[j]))      
-        }      
-    }
-
-   if(boost-1 > count) {
-        count++;
-        console.log('afdas')
-       // boostLanguage(boost,lang,size,resultLang)
-   }
-
-    //arrayResult = [];
-    //count = 1;
-    return resultLang;
-}
-
 
 const reverseLanguage = (lang) => {
-    return lang.map((character)=> inverseOfWord(character))
+    return lang.map((character)=> reverseOfWord(character))
 }
 
 const joinLanguage = (langa, langb) => {
-    const aaa = joinSets(langa,langb);
-    aaa.unshift('');
-    return aaa
+    const resultJoin = joinSets(langa,langb).split(",");
+    return resultJoin;
 }
 
 const intersectionLanguage = (langa, langb) => {
-    return  intersectionSets(langa, langb)
+    return intersectionSets(langa, langb)
 }
 
 const subtractLanguage =  (langa, langb)=> {
-    const aaa = complementSets(langa, langb)
-    aaa.unshift('');
-    return aaa;
+    if(changeOrder) {
+        resultLeft.innerHTML = `A - B`;
+        return complementSets(langa, langb)
+    }
+    resultLeft.innerHTML = `B - A`;
+    return complementSets(langb, langa);
 }
 
+const kleeneClosure = (boost,langa) =>{
+    let result = [];
+    for (let index = 0; index < boost; index++) {
+        result = joinLanguage(result,boostLanguage(index,langa));
+    }
+    result.push('...');
+    return result;
+}
 
-// console.log(belongingSets(c1,c2));
-// console.log(joinSets(c1,c2))
-// console.log(intersectionSets(c1,c2))
-// console.log(complementSets(c1,c2))
-// console.log(symmetricalDifference(c1,c2))
-// console.log(lengthWord('gs'))
-// console.log(concatWords('abc','def'))
-// console.log(boostAWord(4, 'abc'))
-// console.log(inverseOfWord('hola'))
-// console.log(concatLanguage(['carro','moto'],['cicla','bus']));
-//console.log(boostLanguage(2,['a','b','c']));
-//console.log(reverseLanguage(['0','01','1234', '111']))
-//console.log(joinLanguage(['lana','papa', 'perro'], ['nana','natis','pepa']))
-//console.log(intersectionLanguage(['lana','papa', 'perro'], ['lana','natis','papa']))
-// console.log(subtractLanguage(['lana', 'papa'],['papa']))
-// console.log(subtractLanguage(['papa'],['lana', 'papa']))
-
-console.log(boostLanguage(3,['a','b'],['a','b'].length, []))
-
-
+const positiveClosure = (boost,langa) => {
+    let result = kleeneClosure(boost,langa)
+    result.shift(1);
+    return result;
+}
