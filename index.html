@@ -126,41 +126,45 @@
             </ul>
         </nav>
         <div class="container">
-            <h2 id="title-type-sets"></h2>
-            <h4 id="title-type-operations"></h4>
-            <p id="description-operations"></p>
-
-
-            <div class="form-operations">
-                <div class="form-operations__group">
-                    <label for="" id="name-setsA">Conjunto A</label>
-                    <input type="text" id="setsA">
+            <img class="home" src="./img/Logo-UTS-1.png" alt="Logo de la UTS">
+            <div class="form">
+                <h2 id="title-type-sets"></h2>
+                <h4 id="title-type-operations"></h4>
+                <p id="description-operations"></p>
+    
+    
+                <div class="form-operations">
+                    <div class="form-operations__group">
+                        <label for="" id="name-setsA">Conjunto A</label>
+                        <input type="text" id="setsA">
+                    </div>
+    
+                    <button class="form-operatios__change" id="btn-change">
+                        <span class="material-symbols-outlined">
+                            cached
+                            </span>
+                    </button>
+                   
+                    
+                    <div class="form-operations__group">
+                        <label for="" id="name-setsB">Conjunto B</label>
+                        <input type="text" id="setsB">
+                    </div>
+                   
+                    <button id="calculate" class="btn-submit">Calcular</button>
                 </div>
-
-                <button class="form-operatios__change" id="btn-change">
-                    <span class="material-symbols-outlined">
-                        cached
-                        </span>
-                </button>
-               
-                
-                <div class="form-operations__group">
-                    <label for="" id="name-setsB">Conjunto B</label>
-                    <input type="text" id="setsB">
+    
+                <div class="result">
+                    <span id="result-left" class="result__left"></span>
+                    <span id="equal"></span>
+                    <span id="result-right" class="result__right"></span>
                 </div>
-               
-                <button id="calculate" class="btn-submit">Calcular</button>
             </div>
-
-            <div class="result">
-                <span id="result-left" class="result__left"></span>
-                <span id="equal"></span>
-                <span id="result-right" class="result__right"></span>
-            </div>
+            
         </div>    
     </main>
 
-    <footer>&copy; Todos los derechos reservados | Johan Viancha - Frontend Developer | UTS - 2023</footer>
+    <footer>&copy; Todos los derechos reservados | Johan Viancha - Frontend Developer | UTS - 2023 | <a href="https://github.com/JohanViancha/formal-language-operations" target="_blank"> Ir al repositorio en GitHub</a></footer>
     <script src="./script.js"></script>
 </body>
 </html>

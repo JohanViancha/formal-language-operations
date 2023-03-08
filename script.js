@@ -6,6 +6,8 @@ const InputSetsB = document.querySelector("#setsB");
 const labelA = document.querySelector("#name-setsA");
 const labelB = document.querySelector("#name-setsB");
 const btnChange = document.querySelector("#btn-change");
+const home = document.querySelector(".home");
+const form = document.querySelector(".form");
 let changeOrder = true;
 
 window.onload = ()=> {
@@ -28,6 +30,8 @@ const init = ()=>{
     
     typeOptions.forEach((option)=>{
         option.addEventListener('click', ({target})=>{
+            home.style.display = 'none';
+            form.style.display = 'flex'
             operations = {sets:target.dataset.type, operations: target.innerText, description:target.dataset.description}
             showTitle(operations);
             clearForm();
@@ -42,7 +46,10 @@ const init = ()=>{
     })
 
     calculate.addEventListener('click',()=>{
-        executeOperations(operations, {setsA:InputSetsA.value.split(','), setsB:InputSetsB.value.split(',')});
+        executeOperations(operations, {
+            setsA:InputSetsA.value.split(',').map((str)=>str.trim()), 
+            setsB:InputSetsB.value.split(',').map((str)=>str.trim())
+        });
     })
    
     optionsAlphabet.addEventListener('click',  (element)=>{
@@ -63,6 +70,7 @@ const init = ()=>{
 
 const executeOperations = (operation, sets) =>{
     equal.innerText = '=';
+    console.log(sets)
     let options = {
         'Pertenencia' : ()=>{ 
             resultLeft.innerText = 'B';
@@ -76,17 +84,16 @@ const executeOperations = (operation, sets) =>{
                 return;
             }
             let result = joinLanguage(sets["setsA"], sets["setsB"]);
-            result.unshift('&lambda;');
             resultRight.innerHTML = `{ ${result} }`;
         },
 
         'Intersección': ()=> {
             resultLeft.innerHTML = `A ${'&cap;'} B`;
             if(operation["sets"] === 'Alfabeto'){
-                resultRight.innerText = `{  ${intersectionSets(sets["setsA"], sets["setsB"])} }`;
+                resultRight.innerHTML = intersectionSets(sets["setsA"], sets["setsB"]);
                 return;
             }
-            resultRight.innerText = `{ ${intersectionLanguage(sets["setsA"], sets["setsB"])} }`;
+            resultRight.innerHTML = intersectionLanguage(sets["setsA"], sets["setsB"]);
         },
 
         'Complemento': ()=> {
@@ -100,7 +107,7 @@ const executeOperations = (operation, sets) =>{
 
         'Diferencia simétrica': ()=> {
             resultLeft.innerHTML = `A ${'&oplus;'} B`;
-            resultRight.innerText = symmetricalDifference(sets["setsA"], sets["setsB"]);
+            resultRight.innerText = `{ ${symmetricalDifference(sets["setsA"], sets["setsB"])} }`;
         },
 
         "Longitud" : () =>{
@@ -134,7 +141,7 @@ const executeOperations = (operation, sets) =>{
                 resultRight.innerText = `{ ${reverseOfWord(sets["setsA"][0])} }`;
                 return;
             }
-            resultRight.innerHTML = `{ ${reverseLanguage(sets["setsA"])} }`;
+            resultRight.innerHTML = `{ ${reverseLanguage(deleteLambda(sets["setsA"],false))} }`;
 
          },
 
@@ -242,7 +249,8 @@ const joinSets = (A, B) => {
 }
 
 const intersectionSets = (A,B) => {
-    return [... new Set(A)].filter((character)=> findCharacterInAGroup(character, B))
+    const result = [... new Set(A)].filter((character)=> findCharacterInAGroup(character, B));
+    return result.length===0 ? '&empty;': `{ ${result} }`;
 }
 
 const complementSets = (univerSet, B) =>{  
@@ -279,7 +287,7 @@ const lengthWord = (word) => {
 const concatWords = (wordA ='', wordB ='') => wordA.concat(wordB);
 
 const boostAWord = (boost, word) => {
-    if(boost==0) return '&lambda;';
+    if(boost==0) return 'λ';
     let wordConcat = '';
     for (let index = 0; index < boost; index++) wordConcat += word
     return wordConcat;
@@ -291,25 +299,41 @@ const reverseOfWord = (word) => word.split("").reverse().join("");
 
 const concatLanguage = (langA, langB) =>{
     const concatAAndB = [];
-    langB.unshift('')
+    const hasLambdaA = searchLambda(langA)
+    const hasLambdaB = searchLambda(langB)
+    langA = deleteLambda(langA,false)
+    langB = deleteLambda(langB,false)
+    
+    if(hasLambdaA || hasLambdaB){
+        if(hasLambdaA){
+            langA.unshift('');
+        }
+        else{
+            langB.unshift('')
+        }
+    }
+
     for (let i = 0; i < lengthWord(langB); i++) {
         for (let j = 0; j < lengthWord(langA); j++) {    
             concatAAndB.push(concatWords(langB[i],langA[j]));
         }        
     }
-
     return concatAAndB;
-
 }
 
 
 const boostLanguage = (boost,lenguaje) => {
-    if(boost==0) return '&lambda;'
-    let result = lenguaje;
+    if(boost==0) return 'λ'
+    let result = deleteLambda(lenguaje,false);
+    let lengArray = result;
+
     for (let i = 1; i < boost; i++) {
         result = result.reduce((acumulador, elemento) => {
-      return acumulador.concat(lenguaje.map(subElemento => elemento + subElemento));
+      return acumulador.concat(lengArray.map(subElemento => elemento + subElemento));
     }, []);
+  }
+  if(searchLambda(lenguaje)){
+    result.unshift('λ')
   }
   return result;
 }
@@ -319,8 +343,8 @@ const reverseLanguage = (lang) => {
 }
 
 const joinLanguage = (langa, langb) => {
-    const resultJoin = joinSets(langa,langb).split(",");
-    return resultJoin;
+    const resultJoin = joinSets(langa,langb).split(",")
+    return deleteLambda(resultJoin,true);;
 }
 
 const intersectionLanguage = (langa, langb) => {
@@ -346,7 +370,24 @@ const kleeneClosure = (boost,langa) =>{
 }
 
 const positiveClosure = (boost,langa) => {
-    let result = kleeneClosure(boost,langa)
-    result.shift(1);
+    let result = kleeneClosure(boost,langa);
+    if(!searchLambda(langa)){
+        console.log(deleteLambda(result))
+        return deleteLambda(result)
+    }
     return result;
+}
+
+const deleteLambda = (chain, flag) =>{
+    if(searchLambda(chain)){
+        let result = chain.filter((element)=> element!=='λ')
+        console.log(result)
+        flag ? result.unshift('λ'): '';
+        return result;
+    }
+    return chain;
+}
+
+const searchLambda = (chain) =>{
+    return chain.indexOf('λ') !== -1 ? true : false;
 }
