@@ -312,10 +312,10 @@ const concatLanguage = (langA, langB) =>{
             langB.unshift('')
         }
     }
-
+    
     for (let i = 0; i < lengthWord(langB); i++) {
         for (let j = 0; j < lengthWord(langA); j++) {    
-            concatAAndB.push(concatWords(langB[i],langA[j]));
+            concatAAndB.push(concatWords(langA[j],langB[i]));
         }        
     }
     return concatAAndB;
