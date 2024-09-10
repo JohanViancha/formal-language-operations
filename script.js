@@ -30,7 +30,6 @@ const init = ()=>{
     
     typeOptions.forEach((option)=>{
         option.addEventListener('click', ({target})=>{
-            home.style.display = 'none';
             form.style.display = 'flex'
             operations = {sets:target.dataset.type, operations: target.innerText, description:target.dataset.description}
             showTitle(operations);
@@ -53,34 +52,69 @@ const init = ()=>{
     })
    
     optionsAlphabet.addEventListener('click',  (element)=>{
-        subOptionsAlphabet.classList.toggle('alphabet-options')
-       
+        if(subOptionsAlphabet.classList.contains('alphabet-options')){
+            subOptionsAlphabet.classList.remove('alphabet-options')
+        }else{
+            subOptionsAlphabet.classList.add('alphabet-options')
+        }
+        subOptionsWords.classList.remove('word-options')
+        subOptionsLanguage.classList.remove('language-options')
     })
 
     optionsWords.addEventListener('click',  (element)=>{
-        subOptionsWords.classList.toggle('word-options')
+        if(subOptionsWords.classList.contains('word-options')){
+            subOptionsWords.classList.remove('word-options')
+
+        }else{
+            subOptionsWords.classList.add('word-options')
+        }
+        subOptionsAlphabet.classList.remove('alphabet-options')
+        subOptionsLanguage.classList.remove('language-options')
        
     })
 
     optionsLanguage.addEventListener('click',  (element)=>{
-        subOptionsLanguage.classList.toggle('language-options')
-    })
+        if(subOptionsLanguage.classList.contains('language-options')){
+            subOptionsLanguage.classList.remove('language-options')
+
+        }else{
+            subOptionsLanguage.classList.add('language-options')
+        }
+        subOptionsAlphabet.classList.remove('alphabet-options')
+        subOptionsWords.classList.remove('word-options')    })
+}
+
+const validateIputClear = () => {
+    if(sets["setsA"].length === 0 && sets["setsB"].length === 0){
+        resultRight.innerHTML = `&empty;`;
+        return;
+    }
 }
 
 
 const executeOperations = (operation, sets) =>{
     equal.innerText = '=';
-    console.log(sets)
     let options = {
         'Pertenencia' : ()=>{ 
+            if(String(sets["setsA"]).length === 0 && String(sets["setsB"]).length === 0 ){
+                equal.innerHTML = `&empty;`
+                resultLeft.innerText = '';
+                resultRight.innerText = '';
+                return;
+            }
             resultLeft.innerText = 'B';
             resultRight.innerText = 'A';
             equal.innerHTML = belongingSets(sets["setsA"], sets["setsB"]);
         },
         'Unión': ()=>  {
             resultLeft.innerHTML = `A ${'&cup;'} B`;
+            if(String(sets["setsA"]).length === 0 && String(sets["setsB"]).length === 0 ){
+                resultRight.innerHTML = `&empty;`
+                return;
+            }
+
             if(operation["sets"] === 'Alfabeto'){
-                resultRight.innerText = `{ ${joinSets(sets["setsA"], sets["setsB"])} }`;
+                resultRight.innerText = `{ ${joinSets(sets["setsA"], sets["setsB"]) } } `;
                 return;
             }
             let result = joinLanguage(sets["setsA"], sets["setsB"]);
@@ -89,6 +123,13 @@ const executeOperations = (operation, sets) =>{
 
         'Intersección': ()=> {
             resultLeft.innerHTML = `A ${'&cap;'} B`;
+
+            if(String(sets["setsA"]).length === 0 && String(sets["setsB"]).length === 0 ){
+                resultRight.innerHTML = `&empty;`
+                return;
+            }
+
+
             if(operation["sets"] === 'Alfabeto'){
                 resultRight.innerHTML = intersectionSets(sets["setsA"], sets["setsB"]);
                 return;
@@ -98,11 +139,17 @@ const executeOperations = (operation, sets) =>{
 
         'Complemento': ()=> {
             resultLeft.innerText = `B’`;
-            resultRight.innerText = `{ ${complementSets(sets["setsA"], sets["setsB"])} }`;
+            
+            if(String(sets["setsA"]).length === 0 && String(sets["setsB"]).length === 0 ){
+                resultRight.innerHTML = `&empty;`
+                return;
+            }
+
+            resultRight.innerHTML = `${complementSets(sets["setsA"], sets["setsB"])}`;
         },
 
         'Diferencia absoluta': ()=> {
-            resultRight.innerText = `{ ${absoluteDifference(sets["setsA"], sets["setsB"])} }`;
+            resultRight.innerHTML = ` ${absoluteDifference(sets["setsA"], sets["setsB"])} `;
         },
 
         'Diferencia simétrica': ()=> {
@@ -118,10 +165,20 @@ const executeOperations = (operation, sets) =>{
         'Concatenación': ()=>{
             if(operation["sets"] === 'Cadena'){
                 resultLeft.innerHTML = `AB`;
-                resultRight.innerText = concatWords(sets["setsA"], sets["setsB"]);
+                if(String(sets["setsA"]).length === 0 && String(sets["setsB"]).length === 0 ){
+                    resultRight.innerHTML = `&empty;`
+                    return;
+                }
+                resultRight.innerText = concatWords(sets["setsA"], sets["setsB"]).join().replace(',','');
                 return;
             }
+
             resultLeft.innerHTML = `A &middot; B`;
+            
+            if(String(sets["setsA"]).length === 0 && String(sets["setsB"]).length === 0 ){
+                resultRight.innerHTML = `&empty;`
+                return;
+            }
         
             resultRight.innerText = concatLanguage(sets["setsA"], sets["setsB"]);
         } ,
@@ -132,11 +189,15 @@ const executeOperations = (operation, sets) =>{
                 resultRight.innerHTML = boostAWord(sets["setsB"],sets["setsA"]);
                 return;
             }
-            resultRight.innerHTML = `{ ${boostLanguage(sets["setsB"],sets["setsA"])} }`;
+            resultRight.innerHTML = ` ${boostLanguage(sets["setsB"],sets["setsA"])} `;
          },
 
          'Inversa': ()=> {
             resultLeft.innerHTML = `A <sup>R</sup>`
+            if(String(sets["setsA"]).length === 0 ){
+                resultRight.innerHTML = '&empty;'
+                return;
+            }
             if(operation["sets"] === "Cadena"){  
                 resultRight.innerText = `{ ${reverseOfWord(sets["setsA"][0])} }`;
                 return;
@@ -245,7 +306,14 @@ const belongingSets = (A, B) => {
 }
 
 const joinSets = (A, B) => {
-    return `${[...new Set(A.concat(B))].join(',')}`
+    let result = [...new Set(A.concat(B))].join(',')
+    if(result[0] === ','){
+        return result.slice(1,result.length)
+    }
+    if(result[result.length - 1] === ','){
+        return result.slice(0,result.length - 1)
+    }
+    return result
 }
 
 const intersectionSets = (A,B) => {
@@ -254,7 +322,11 @@ const intersectionSets = (A,B) => {
 }
 
 const complementSets = (univerSet, B) =>{  
-    return [... new Set(univerSet)].filter((character)=> !findCharacterInAGroup(character, B)) 
+    const result = [... new Set(univerSet)].filter((character)=> !findCharacterInAGroup(character, B)) 
+    if(String(result).length === 0){
+        return '&empty;'
+    }
+    return `{ ${result} }`
 }
 
 const absoluteDifference = (A,B) => {
@@ -284,9 +356,21 @@ const lengthWord = (word) => {
     return word.length;
 };
 
-const concatWords = (wordA ='', wordB ='') => wordA.concat(wordB);
+const concatWords = (wordA ='', wordB ='') => {
+    if(String(wordA).length === 0){
+        return wordB
+        
+    }
+    if(String(wordB).length === 0){
+        return wordA
+    }
+
+    console.log('no entró')
+    return wordA.concat(wordB);
+}
 
 const boostAWord = (boost, word) => {
+    if(String(word).length === 0) return '&empty;'
     if(boost==0) return 'λ';
     let wordConcat = '';
     for (let index = 0; index < boost; index++) wordConcat += word
